@@ -37,27 +37,19 @@ def login_to_instagram():
     time.sleep(3)  # Allow time for the page to load
 
     try:
-        # Look for the "Open Instagram" button and click it if present
-        try:
-            print("Looking for 'Open Instagram' button...")
-            open_instagram_button = driver.find_element(By.XPATH, "//button[contains(text(), 'Open Instagram')]")
-            open_instagram_button.click()
-            print("Clicked 'Open Instagram' button.")
-            time.sleep(2)
-        except Exception as e:
-            print(f"'Open Instagram' button not found: {e}. Proceeding to 'Log in' link...")
-
-        # Look for and click the "Log in" link
+        # Look for and click the "Log in" link directly
         print("Looking for 'Log in' link...")
         try:
             login_link = driver.find_element(By.XPATH, "//a[contains(text(), 'Log in')]")
             login_link.click()
             print("Clicked 'Log in' link.")
-            time.sleep(2)  # Wait for login form to appear
-        except Exception as e:
-            print(f"'Log in' link not found: {e}")
-            driver.save_screenshot("login_error_link.png")
-            raise
+        except:
+            print("Looking for 'Log in' button using alternate XPath...")
+            login_link_alt = driver.find_element(By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div[1]/section/main/article/div/div/div/div/div[2]/div/div[3]/button[1]/div")
+            login_link_alt.click()
+            print("Clicked 'Log in' link using alternate XPath.")
+
+        time.sleep(2)  # Wait for login form to appear
 
         # Check for login inputs
         print("Looking for username input field...")
