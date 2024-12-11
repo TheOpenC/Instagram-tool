@@ -37,31 +37,31 @@ def login_to_instagram():
     time.sleep(3)  # Allow time for the page to load
 
     try:
-        # Debugging: Check for 'Log in' link if it appears before input fields
-        if "Log in" in driver.page_source:
-            print("Navigating to the login page...")
-            login_link = driver.find_element(By.LINK_TEXT, "Log in")
-            login_link.click()
-            time.sleep(3)
+        # Look for and click the login button if it exists
+        print("Looking for login button...")
+        login_button = driver.find_element(By.XPATH, "//a[text()='Log in']")
+        login_button.click()
+        time.sleep(2)  # Wait for login form to appear
 
+        # Check for login inputs
         print("Looking for username input field...")
-        username_input = driver.find_element(By.XPATH, "//input[@aria-label='Phone number, username, or email']")
+        username_input = driver.find_element(By.NAME, 'username')
         print("Username input field found.")
 
         print("Looking for password input field...")
-        password_input = driver.find_element(By.XPATH, "//input[@aria-label='Password']")
+        password_input = driver.find_element(By.NAME, 'password')
         print("Password input field found.")
 
-        print("Looking for login button...")
-        login_button = driver.find_element(By.XPATH, "//button[contains(text(), 'Log In')]")
-        print("Login button found.")
+        print("Looking for submit button...")
+        submit_button = driver.find_element(By.XPATH, "//button[@type='submit']")
+        print("Submit button found.")
 
         # Enter credentials
         print("Entering credentials...")
         username_input.send_keys(USERNAME)
         password_input.send_keys(PASSWORD)
         print("Submitting login form...")
-        login_button.click()
+        submit_button.click()
 
         print("Waiting for login to complete...")
         time.sleep(5)  # Wait for login to complete
