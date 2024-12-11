@@ -5,18 +5,14 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
 import time
 import chromedriver_autoinstaller
-import os
 
 # Automatically download and install the correct version of ChromeDriver
-chromedriver_path = chromedriver_autoinstaller.install()
-print(f"ChromeDriver installed at: {chromedriver_path}")
-
-if not os.path.exists(chromedriver_path):
-    raise Exception("ChromeDriver installation failed.")
+chromedriver_autoinstaller.install()
 
 # Configure WebDriver
 options = webdriver.ChromeOptions()
 options.add_argument('--start-maximized')
+options.add_argument('user-agent=Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1')
 driver = webdriver.Chrome(options=options)
 
 # Instagram credentials (replace with your own)
@@ -28,15 +24,21 @@ def login_to_instagram():
     driver.get('https://www.instagram.com/')
     time.sleep(3)  # Allow time for the page to load
 
-    username_input = driver.find_element(By.NAME, 'username')
-    password_input = driver.find_element(By.NAME, 'password')
-    login_button = driver.find_element(By.XPATH, "//button[@type='submit']")
+    try:
+        # Update element locators for mobile layout
+        username_input = driver.find_element(By.XPATH, "//input[@aria-label='Phone number, username, or email']")
+        password_input = driver.find_element(By.XPATH, "//input[@aria-label='Password']")
+        login_button = driver.find_element(By.XPATH, "//button[contains(text(), 'Log In')]")
 
-    username_input.send_keys(USERNAME)
-    password_input.send_keys(PASSWORD)
-    login_button.click()
+        username_input.send_keys(USERNAME)
+        password_input.send_keys(PASSWORD)
+        login_button.click()
 
-    time.sleep(5)  # Wait for login to complete
+        time.sleep(5)  # Wait for login to complete
+    except Exception as e:
+        print(f"Error during login: {e}")
+        driver.quit()
+        raise
 
 # Function to scrape music tags from posts
 def scrape_music_tags(account_username):
