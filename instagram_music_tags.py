@@ -13,7 +13,18 @@ chromedriver_autoinstaller.install()
 options = webdriver.ChromeOptions()
 options.add_argument('--start-maximized')
 options.add_argument('user-agent=Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1')
-driver = webdriver.Chrome(options=options)
+
+def initialize_driver():
+    print("Initializing ChromeDriver...")
+    try:
+        return webdriver.Chrome(options=options)
+    except Exception as e:
+        print(f"Error initializing WebDriver: {e}")
+        print("Reinstalling ChromeDriver with chromedriver_autoinstaller...")
+        chromedriver_autoinstaller.install()
+        return webdriver.Chrome(options=options)
+
+driver = initialize_driver()
 
 # Instagram credentials (replace with your own)
 USERNAME = 'ddpromospam'
@@ -21,22 +32,51 @@ PASSWORD = '&MYV6VxyF3@,9*u'
 
 # Function to log in to Instagram
 def login_to_instagram():
+    print("Navigating to Instagram login page...")
     driver.get('https://www.instagram.com/')
     time.sleep(3)  # Allow time for the page to load
 
     try:
-        # Update element locators for mobile layout
-        username_input = driver.find_element(By.XPATH, "//input[@aria-label='Phone number, username, or email']")
-        password_input = driver.find_element(By.XPATH, "//input[@aria-label='Password']")
-        login_button = driver.find_element(By.XPATH, "//button[contains(text(), 'Log In')]")
+        # Debugging: Check for 'Log in' link if it appears before input fields
+        if "Log in" in driver.page_source:
+            print("Navigating to the login page...")
+            login_link = driver.find_element(By.LINK_TEXT, "Log in")
+            login_link.click()
+            time.sleep(3)
 
+        print("Looking for username input field...")
+        username_input = driver.find_element(By.XPATH, "//input[@aria-label='Phone number, username, or email']")
+        print("Username input field found.")
+
+        print("Looking for password input field...")
+        password_input = driver.find_element(By.XPATH, "//input[@aria-label='Password']")
+        print("Password input field found.")
+
+        print("Looking for login button...")
+        login_button = driver.find_element(By.XPATH, "//button[contains(text(), 'Log In')]")
+        print("Login button found.")
+
+        # Enter credentials
+        print("Entering credentials...")
         username_input.send_keys(USERNAME)
         password_input.send_keys(PASSWORD)
+        print("Submitting login form...")
         login_button.click()
 
+        print("Waiting for login to complete...")
         time.sleep(5)  # Wait for login to complete
+
+        # Post-login check
+        if "wrong password" in driver.page_source.lower():
+            raise Exception("Incorrect credentials detected.")
+
+        # Capture screenshot after login
+        driver.save_screenshot("post_login.png")
+        print("Screenshot saved as 'post_login.png'")
     except Exception as e:
         print(f"Error during login: {e}")
+        driver.save_screenshot("login_error.png")
+        print("Screenshot saved as 'login_error.png'")
         driver.quit()
         raise
 
@@ -80,10 +120,18 @@ def scrape_music_tags(account_username):
 
 # Main execution
 try:
+    print("Starting Instagram login...")
     login_to_instagram()
+    print("Login successful. Starting music tag scraping...")
     account_username = 'beyondvaudeville'  # Replace with the target account's username
     music_tags = scrape_music_tags(account_username)
     print("Collected music tags:", music_tags)
 
+except Exception as e:
+    print(f"An error occurred: {e}")
+    driver.save_screenshot("critical_error.png")
+    print("Screenshot saved as 'critical_error.png' for debugging.")
+
 finally:
+    print("Closing the browser.")
     driver.quit()
