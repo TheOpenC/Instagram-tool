@@ -5,14 +5,18 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
 import time
 import chromedriver_autoinstaller
+import os
 
 # Automatically download and install the correct version of ChromeDriver
-chromedriver_autoinstaller.install()
+chromedriver_path = chromedriver_autoinstaller.install()
+print(f"ChromeDriver installed at: {chromedriver_path}")
+
+if not os.path.exists(chromedriver_path):
+    raise Exception("ChromeDriver installation failed.")
 
 # Configure WebDriver
 options = webdriver.ChromeOptions()
 options.add_argument('--start-maximized')
-options.add_argument('user-agent=Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1')
 driver = webdriver.Chrome(options=options)
 
 # Instagram credentials (replace with your own)
